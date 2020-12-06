@@ -74,12 +74,19 @@ class conexion {
         }
     }
 
-    //funcion para ejecutar sql de update, insert o delete en la BD.
+    //funcion para ejecutar sql de update o delete en la BD.
     public function accionQuery($sql, $paciente=null, $accion=null){
         $resultados = $this->conexion->query($sql);
         /* liberar el conjunto de resultados */
         //$resultados->close();
-        return $this->conexion->affected_rows;
+        $filasActualizadas = $this->conexion->affected_rows;
+        if($filasActualizadas >= 1){
+            //Registramos las acciones
+            $this->registrarAccion($accion, $paciente);
+            
+        }
+        return $filasActualizadas;
+ 
     }
 
     //funcion para ejecutar sql de insert, que devuelve id creado.

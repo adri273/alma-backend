@@ -45,7 +45,11 @@ class pacientes extends conexion {
             $sql = "INSERT INTO hospital.pacientes (name, surname, birthdate, id_doctor) VALUES ('".$datos['name']."', '".$datos['surname']."','".$datos['birthdate']."', ".$_SESSION['doctor'].");";
             if($paciente = parent::accionQueryId($sql)){
                 //existe paciente
-                return $paciente;
+                $respuesta = $_respuesta->response;
+                $respuesta["result"] = array(
+                    "pacienteId" => $paciente
+                );
+                return $respuesta;
             }else{
                 //no existe paciente
                 return $_respuesta->error('405',"Error al crear paciente. ");
@@ -54,6 +58,69 @@ class pacientes extends conexion {
             return $_respuesta->error('405','Datos del paciente incompletos.');
         }
 
+    }
+
+    public function editarPaciente($json){
+        $_respuesta = new respuesta;
+
+        $datos = json_decode($json,true);
+        //validamos si existe doctor logeado
+        if(!isset($_SESSION['doctor'])) return $_respuesta->error('403','Debes iniciar sesión para continuar.');
+        //validamos que recibimos el id del paciente
+        if(isset($datos['id']) ){
+            $sql = "UPDATE hospital.pacientes SET name='".$datos['name']."', surname='".$datos['surname']."', birthdate='".$datos['birthdate']."' where id = ".$datos['id']." AND id_doctor = ".$_SESSION['doctor'].";";
+            if($rows = parent::accionQuery($sql, $datos['id'], 'update')){
+                if($rows >= 1){
+                    //todo correcto
+                    $respuesta = $_respuesta->response;
+                    $respuesta["result"] = array(
+                        "filasModificadas" => $rows
+                    );
+                    return $respuesta;
+                }else{
+                    return $_respuesta->error('405',"Error al editar el paciente. ");
+                }
+                
+                
+            }else{
+                //no existe paciente
+                return $_respuesta->error('405',"Error al editar paciente. ");
+            }
+        }else{
+            return $_respuesta->error('405','Datos del paciente incompletos.');
+        }
+
+    }
+
+    public function eliminarPaciente($json){
+        $_respuesta = new respuesta;
+
+        $datos = json_decode($json,true);
+        //validamos si existe doctor logeado
+        if(!isset($_SESSION['doctor'])) return $_respuesta->error('403','Debes iniciar sesión para continuar.');
+        //validamos que recibimos el id del paciente
+        if(isset($datos['id']) ){
+            $sql = "DELETE FROM hospital.pacientes WHERE id = ".$datos['id']." AND id_doctor = ".$_SESSION['doctor'].";";
+            if($rows = parent::accionQuery($sql, $datos['id'], 'delete')){
+                if($rows >= 1){
+                    //todo correcto
+                    $respuesta = $_respuesta->response;
+                    $respuesta["result"] = array(
+                        "registrosEliminados" => $rows
+                    );
+                    return $respuesta;
+                }else{
+                    return $_respuesta->error('405',"Error al eliminar el paciente. ");
+                }
+                
+                
+            }else{
+                //no existe paciente
+                return $_respuesta->error('405',"Error al eliminar paciente. ");
+            }
+        }else{
+            return $_respuesta->error('405','Datos incorrectos.');
+        }
     }
 }
 

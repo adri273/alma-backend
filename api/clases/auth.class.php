@@ -32,6 +32,11 @@ class auth extends conexion {
 
     }
 
+    public function logout(){
+        session_destroy();
+        return "Has cerrado sesión.";
+    }
+
 }
 
 

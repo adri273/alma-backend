@@ -15,7 +15,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
         if(isset($_GET['id'])){
             $resultData = $_pacientes->getPaciente($_GET['id']);
         }else{
-            $resultData = $_pacientes->getPaciente($_GET['id']);
+            $resultData = $_pacientes->listaPacientes();
         }
 
         header('Content-Type: application/json');
@@ -31,16 +31,51 @@ switch ($_SERVER['REQUEST_METHOD']) {
         //recibimos los datos enviados
         $postBody = file_get_contents('php://input');
         //enviamos los datos a la clase
-        echo json_encode($_pacientes->insertPaciente($postBody));
+        $resultData = $_pacientes->insertPaciente($postBody);
         //devolvemos respuesta al cliente
-
+        header('Content-Type: application/json');
+        if(isset($resultData["result"]["error_id"])){
+            $responseCode = $resultData["result"]["error_id"];  //enviamos en la cabecera como status el error_id
+            http_response_code($responseCode);
+        }else{
+            http_response_code(200); //todo OK
+        }
+        echo json_encode($resultData);
         break;
     case 'PUT':
+        //recibimos los datos enviados
+        $postBody = file_get_contents('php://input');
+        //enviamos los datos a la clase
+        $resultData = $_pacientes->editarPaciente($postBody);
+        //devolvemos respuesta al cliente
+        header('Content-Type: application/json');
+        if(isset($resultData["result"]["error_id"])){
+            $responseCode = $resultData["result"]["error_id"];  //enviamos en la cabecera como status el error_id
+            http_response_code($responseCode);
+        }else{
+            http_response_code(200); //todo OK
+        }
+        echo json_encode($resultData);
         break;
     case 'DELETE':
+        //recibimos los datos enviados
+        $postBody = file_get_contents('php://input');
+        //enviamos los datos a la clase
+        $resultData = $_pacientes->eliminarPaciente($postBody);
+        //devolvemos respuesta al cliente
+        header('Content-Type: application/json');
+        if(isset($resultData["result"]["error_id"])){
+            $responseCode = $resultData["result"]["error_id"];  //enviamos en la cabecera como status el error_id
+            http_response_code($responseCode);
+        }else{
+            http_response_code(200); //todo OK
+        }
+        echo json_encode($resultData);
         break;
     default:
-        # code...
+        header('Content-Type: application/json');
+        $resultData = $_respuesta->error('405', 'Método no válido.');
+        echo json_encode($resultData);
         break;
 }
 
